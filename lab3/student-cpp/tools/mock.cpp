@@ -1,4 +1,4 @@
-// Airline mock for lab 3, stage 2. C++ port of kit/java/mock/src/lab3mock/Mock.java (same protocol, same numbers,
+// Airline mock for lab 3, stage 2. C++ port of student-java/mock/src/lab3mock/Mock.java (same protocol, same numbers,
 // same delay distributions). One process plays all airlines.
 //   out/mock [--schedule ../data/schedule.bin] [--airlines ../data/airlines.conf] [--port 7700] [--threads N]
 //

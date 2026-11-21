@@ -1,4 +1,4 @@
-// Lab 3 data generator, C++ port of kit/java/tools/Gen.java. Deterministic by seed; for the same options it writes
+// Lab 3 data generator, C++ port of student-java/tools/Gen.java. Deterministic by seed; for the same options it writes
 // byte-identical schedule.bin, queries.txt and airlines.conf (it reproduces java.util.SplittableRandom).
 //   out/gen [--seed 2026] [--out ../data] [--per-day 1200000] [--alpha 1.6]
 // searches.txt (stage 2 input) is not generated here: it ships with the kit.

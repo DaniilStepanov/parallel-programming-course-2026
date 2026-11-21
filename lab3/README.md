@@ -25,20 +25,20 @@
 - **Что поставить:**
   - Java: JDK 21+;
   - C++: компилятор с C++20 (g++ 12+ или clang 15+) и Boost (проверено на 1.92; берите свежий, старые версии могут не собраться) — он нужен для этапа 2 и для мока: `apt install libboost-dev`, `brew install boost`, на Windows — vcpkg. Версию покажет `grep BOOST_LIB_VERSION /usr/include/boost/version.hpp`.
-- **Что выдано (`kit/`).** Смотрите `data/` и папку своего языка, вторая вам не нужна:
+- **Что выдано.** Смотрите `data/` и папку своего языка, вторая вам не нужна:
 
   | Папка | Что там |
   |---|---|
   | `data/` | общие данные: `queries.txt` (запросы этапа 1), `expected-stage1.txt` (правильные ответы этапа 1), `searches.txt` (поиски этапа 2), `airlines.conf` (настройки авиакомпаний). Сюда же генерируется `schedule.bin` |
-  | `java/` | всё для Java: генератор расписания, проверка этапа 1, сервер авиакомпаний (мок), клиент к нему, каркас этапа 2 (harness), заглушка `StudentAggregator` |
-  | `cpp/` | то же самое для C++. |
+  | `student-java/` | всё для Java: генератор расписания, проверка этапа 1, сервер авиакомпаний (мок), клиент к нему, каркас этапа 2 (harness), заглушка `StudentAggregator` |
+  | `student-cpp/` | то же самое для C++. |
 
-  В `java/` и `cpp/` одинаковые скрипты: `gen.sh` (сгенерировать расписание), `check.sh` (проверить этап 1), `run-mock.sh` (запустить мок), `build.sh` и `run.sh` (собрать и запустить этап 2).
+  В `student-java/` и `student-cpp/` одинаковые скрипты: `gen.sh` (сгенерировать расписание), `check.sh` (проверить этап 1), `run-mock.sh` (запустить мок), `build.sh` и `run.sh` (собрать и запустить этап 2).
 
 - **Расписание `schedule.bin` (192 МБ) не лежит в репозитории, сгенерируйте его** (1–2 с):
   ```bash
-  kit/java/gen.sh      # Java
-  kit/cpp/gen.sh       # C++
+  student-java/gen.sh      # Java
+  student-cpp/gen.sh       # C++
   ```
   Скрипт печатает контрольную сумму. Она должна быть такой: `c0523277c3f260f3482c2947cd3e08f882904186cc79d3a20e6194a5d2e0da7d`.
 
@@ -120,7 +120,7 @@ DYX CDG 1        ← откуда, куда, в какой день вылет
 
 Рейсы в файле лежат вперемешку. Чтобы быстро находить «все рейсы из KWI после 04:16», индексы придётся построить самим.
 
-Читать файл можно готовым кодом: `kit/java/src/lab3/Schedule.java` или `kit/cpp/src/schedule.hpp`. Если хотите читать сами, формат такой (little-endian):
+Читать файл можно готовым кодом: `student-java/src/lab3/Schedule.java` или `student-cpp/src/schedule.hpp`. Если хотите читать сами, формат такой (little-endian):
 ```
 "FLT1"                                 4 байта
 число аэропортов, авиакомпаний, рейсов   3 × u32
@@ -147,8 +147,8 @@ Q1 DYX CDG 1 count=225302318 ms=89
 `ms` — сколько миллисекунд занял поиск по этому запросу. Загрузка файла и индексы, общие для всех запросов, строятся один раз до первого запроса и в `ms` не входят.
 Проверка корректности. Поле `ms=` она не сравнивает:
 ```bash
-kit/java/check.sh my-output.txt     # Java
-kit/cpp/check.sh  my-output.txt     # C++
+student-java/check.sh my-output.txt     # Java
+student-cpp/check.sh  my-output.txt     # C++
 ```
 
 ### Что сделать
@@ -204,8 +204,8 @@ kit/cpp/check.sh  my-output.txt     # C++
 
 Запуск в отдельном терминале, мок слушает `127.0.0.1:7700`:
 ```bash
-kit/java/run-mock.sh     # Java
-kit/cpp/run-mock.sh      # C++ (нужен Boost, как и для вашего кода этапа 2)
+student-java/run-mock.sh     # Java
+student-cpp/run-mock.sh      # C++ (нужен Boost, как и для вашего кода этапа 2)
 ```
 Оба мока отвечают одинаково, берите тот, что на вашем языке.
 
@@ -226,14 +226,14 @@ kit/cpp/run-mock.sh      # C++ (нужен Boost, как и для вашего 
 
 `OK` приносит список рейсов с ценами. При `ERR` можно попробовать ещё раз, если осталось время. `LIMIT` означает, что запрос отправили сверх лимита: держите не больше `kit.limit(airline)` запросов в работе на авиакомпанию, считая все поиски вместе. `TIMEOUT` означает, что ответа не дождались.
 
-Сигнатуры и детали отмены — в [клиенте Java](kit/java/src/lab3/AirlineClient.java) и [клиенте C++](kit/cpp/src/airline_client.hpp). В Java `future()` получает ответ на потоке, который читает ответы мока: не занимайте его долгой обработкой. В C++ запускайте `async_get` на `io_context` с одним потоком или через `strand`.
+Сигнатуры и детали отмены — в [клиенте Java](student-java/src/lab3/AirlineClient.java) и [клиенте C++](student-cpp/src/airline_client.hpp). В Java `future()` получает ответ на потоке, который читает ответы мока: не занимайте его долгой обработкой. В C++ запускайте `async_get` на `io_context` с одним потоком или через `strand`.
 
 ### Что вы пишете
 
 Начните с изучения заготовки своего языка:
 
-- **Java:** [StudentAggregator.java](kit/java/src/lab3/StudentAggregator.java). Стенд создаёт `Aggregator` через публичный конструктор с `Kit`. Метод `search` возвращает `CompletableFuture<Answer>`.
-- **C++:** [student_aggregator.cpp](kit/cpp/src/student_aggregator.cpp). Стенд создаёт `lab3::aggregator` через конструктор с `lab3::kit&`. Зарегистрируйте свой класс через `LAB3_REGISTER("имя", класс)`. Готовый ответ передайте в `done`.
+- **Java:** [StudentAggregator.java](student-java/src/lab3/StudentAggregator.java). Стенд создаёт `Aggregator` через публичный конструктор с `Kit`. Метод `search` возвращает `CompletableFuture<Answer>`.
+- **C++:** [student_aggregator.cpp](student-cpp/src/student_aggregator.cpp). Стенд создаёт `lab3::aggregator` через конструктор с `lab3::kit&`. Зарегистрируйте свой класс через `LAB3_REGISTER("имя", класс)`. Готовый ответ передайте в `done`.
 
 Стенд вызывает `search` с одного потока. Верните управление сразу, чтобы он мог запустить следующий поиск, пока этот ждёт цены.
 
@@ -267,14 +267,14 @@ kit/cpp/run-mock.sh      # C++ (нужен Boost, как и для вашего 
 
 Java:
 ```bash
-cd kit/java && ./build.sh                 # компилирует kit и ваш код из src/
+cd student-java && ./build.sh                 # компилирует kit и ваш код из src/
 # если ваши классы собраны в другом месте: CP=/путь/к/классам ./run.sh --impl my.pkg.MyAggregator ...
 ./run.sh --impl lab3.StudentAggregator --rate 100
 ./run.sh --impl lab3.StudentAggregator --sweep 50,100,200,300 --seconds 20 --warmup 5 --opt pool=200
 ```
 C++:
 ```bash
-cd kit/cpp && ./build.sh [ваши_файлы.cpp] [-Iпапка_с_вашими_заголовками]
+cd student-cpp && ./build.sh [ваши_файлы.cpp] [-Iпапка_с_вашими_заголовками]
 # например: ./build.sh ../../solution/blocking.cpp ../../solution/coro.cpp -I../../solution -Isrc
 ./run.sh --impl student --rate 100
 ./run.sh --impl student --sweep 50,100,200,300 --opt pool=200

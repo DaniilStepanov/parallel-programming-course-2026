@@ -1,4 +1,4 @@
-// Compares stage 1 output with the reference, ignoring ms=. C++ port of kit/java/tools/Stage1Check.java.
+// Compares stage 1 output with the reference, ignoring ms=. C++ port of student-java/tools/Stage1Check.java.
 //   out/stage1_check <your-output.txt> [expected-stage1.txt]
 // Without the second argument it looks for ../../data/expected-stage1.txt next to the binary, then ./expected-stage1.txt.
 // Exit code 0 if every query matches.
